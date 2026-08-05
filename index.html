@@ -78,7 +78,7 @@ async function checkFileExists(url) {
 // Основная функция загрузки реестра
 async function loadEntityMap() {
     // Загружаем содержимое Markdown-файла реестра
-    const response = await fetch('/db_index/TusanYoM_Entities.md');
+    const response = await fetch("/db_index/TusanYoM_Entities.MD");
     if (!response.ok) {
         document.getElementById('entity-map').innerHTML += '<tr><td colspan="6">❗ Не удалось загрузить реестр сущностей! Проверьте, что файл существует и доступен.</td></tr>';
         return;
