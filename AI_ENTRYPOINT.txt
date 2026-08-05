@@ -1,1 +1,10 @@
+# BOOT SEQUENCE: TUSANYoM AI v1.0
 
+STEP 1: READ CONSTITUTION -> /ai_memory/00_CORE_MANIFEST.txt
+(Load immutable rules and protocol logic)
+
+STEP 2: BUILD MAP -> /db_index/TusanYoM_Index.txt
+(Create memory graph of entities and links)
+
+STEP 3: AWAIT PROFILE INJECTION -> /system_prompts/
+(Wait for user context or mood assignment)
