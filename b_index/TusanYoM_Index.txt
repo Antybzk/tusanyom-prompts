@@ -1,5 +1,0 @@
-TUSYA_01 -> /Lore/Tusya_Character.md
-CHUZHIK_01 -> /Lore/Pets/Chuzhik_Physiology.md
-ANIMESHKA_01 -> /Lore/Pets/Animeshka_Behavior.md
-KK_PROJECT -> /Business/Kraft-Krzhka/Specs_v2026.csv
-HOC_ID -> /Projects/HOC-ID/Algorithm_Description.md
