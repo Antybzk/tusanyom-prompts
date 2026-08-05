@@ -1,1 +1,127 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Админка TUSANYoM</title>
+    <!-- Базовый стиль -->
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .folder-link, .entity-link {
+            cursor: pointer;
+            color: #007bff;
+            text-decoration: underline;
+        }
+        .entity-status-ok { color: green; }
+        .entity-status-error { color: red; }
+    </style>
+</head>
+<body>
 
+<h1>Админка TUSANYoM v1.0</h1>
+<p><em>Ваш личный интерфейс управления базой знаний проекта ТусанЁм.</em></p>
+
+<!-- Справочник структуры (статическая часть) -->
+<h2>Справочник папок и сущностей</h2>
+<p>[FOLDER] ai_memory -> Хранит неизменяемые правила протокола (№1–№4). Файлы здесь обновляются редко.</p>
+<p>[FOLDER] db_index -> Динамический реестр сущностей. Карта сущностей (Лор → URL).</p>
+<p>[FOLDER] system_prompts -> Профили настроений персонажей и оперативный контекст пользователей.</p>
+<p>[FOLDER] Lore -> Содержит файлы с описанием персонажей, их отношений и мира (Туся, Чужик, Анимешка, Зубастик).</p>
+<p>[FOLDER] Business -> Спецификации бизнес-проектов (KK, HOC-ID, Flashmob Rules).</p>
+<p>[ABBR] ТКТ -> Телеграм-канал Тусанём | Описание: Основной канал проекта в Telegram.</p>
+<p>[ABBR] СЧМ -> Суперчат Москва | Описание: Платная подписка в Telegram-канале с приоритетным доступом к контенту.</p>
+<p>[ABBR] КК -> Крафтовая Кржка | Описание: Подпроект аренды стаканов со сменными вкладышами для баров.</p>
+
+<!-- Реестр сущностей (динамическая таблица) -->
+<h2>Реестр сущностей [ENTITY MAP]</h2>
+<p>Эта таблица автоматически парсится из файла <code>/db_index/TusanYoM_Entities.md</code>. Она показывает все зарегистрированные сущности и проверяет наличие файлов на сервере.</p>
+
+<table id="entity-map">
+    <tr>
+        <th>Тип</th>
+        <th>ID</th>
+        <th>Название</th>
+        <th>Описание</th>
+        <th>Файл</th>
+        <th>Статус</th>
+    </tr>
+</table>
+
+<script>
+// Функция проверки существования файла по ссылке
+async function checkFileExists(url) {
+    try {
+        const response = await fetch(url);
+        return response.ok;
+    } catch (error) {
+        console.error('Ошибка при проверке ссылки:', error);
+        return false;
+    }
+}
+
+// Основная функция загрузки реестра
+async function loadEntityMap() {
+    // Загружаем содержимое Markdown-файла реестра
+    const response = await fetch('/db_index/TusanYoM_Entities.md');
+    if (!response.ok) {
+        document.getElementById('entity-map').innerHTML += '<tr><td colspan="6">❗ Не удалось загрузить реестр сущностей! Проверьте, что файл существует и доступен.</td></tr>';
+        return;
+    }
+    
+    const markdownText = await response.text();
+
+    // Парсим Markdown как простую таблицу (разделённую символами "|")
+    const lines = markdownText.split('\n');
+
+    // Пропускаем заголовки таблицы
+    for (let i = 3; i < lines.length; i++) {
+        let rowData = lines[i].split('|').map(item => item.trim());
+        
+        // Проверим, чтобы строка была корректной
+        if (rowData.length !== 5) continue;
+
+        const [type, id, name, description, filePath] = rowData;
+
+        // Формируем полную ссылку на файл
+        const fullUrl = 'https://tusanyom-prompts.netlify.app' + filePath;
+
+        // Проверяем существование файла
+        const exists = await checkFileExists(fullUrl);
+
+        // Добавляем строку в HTML-таблицу
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td class="type-cell">${type}</td>
+            <td>${id}</td>
+            <td>${name}</td>
+            <td>${description}</td>
+            <td><a href="${fullUrl}" target="_blank" class="entity-link">${filePath}</a></td>
+            <td class="${exists ? 'entity-status-ok' : 'entity-status-error'}">${exists ? '✅ Доступно' : '❌ Ошибка'}</td>
+        `;
+        document.getElementById('entity-map').appendChild(tr);
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    loadEntityMap().catch(error => console.error('Ошибка при загрузке данных:', error));
+});
+</script>
+
+</body>
+</html>
